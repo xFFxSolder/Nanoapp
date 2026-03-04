@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nano Banana 2 - Church Media Prompt Builder</title>
+    <title>Nano Banana 2 - Super Master Prompt Builder</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -11,617 +11,641 @@
             --primary: #8b5cf6; /* Vibrant Purple */
             --primary-hover: #7c3aed;
             --secondary: #3b82f6; /* Glowing Blue */
-            --bg: #0f172a; /* Slate 900 */
-            --surface: #1e293b; /* Slate 800 */
-            --surface-hover: #334155; /* Slate 700 */
-            --text-main: #f8fafc; /* Slate 50 */
-            --text-muted: #94a3b8; /* Slate 400 */
-            --border: #334155; /* Slate 700 */
-            --radius: 12px;
+            --bg: #09090b; /* Zinc 950 - deeper dark */
+            --surface: rgba(24, 24, 27, 0.7); /* Zinc 900 semi-transparent */
+            --surface-hover: rgba(39, 39, 42, 0.9); /* Zinc 800 */
+            --surface-active: rgba(63, 63, 70, 0.9); /* Zinc 700 */
+            --text-main: #fafafa; /* Zinc 50 */
+            --text-muted: #a1a1aa; /* Zinc 400 */
+            --border: rgba(63, 63, 70, 0.5); /* Zinc 700 */
+            --radius: 16px;
+            --sidebar-width: 320px;
 
-            /* Dark mode tag colors - semi-transparent backgrounds with vibrant text */
-            --tag-format: rgba(34, 197, 94, 0.2);
-            --tag-format-text: #4ade80;
-            --tag-subject: rgba(99, 102, 241, 0.2);
-            --tag-subject-text: #818cf8;
-            --tag-style: rgba(234, 179, 8, 0.2);
-            --tag-style-text: #fde047;
-            --tag-lighting: rgba(249, 115, 22, 0.2);
-            --tag-lighting-text: #fb923c;
-            --tag-color: rgba(236, 72, 153, 0.2);
-            --tag-color-text: #f472b6;
-            --tag-camera: rgba(14, 165, 233, 0.2);
-            --tag-camera-text: #38bdf8;
+            /* Neon Tag Accents */
+            --tag-glow: rgba(139, 92, 246, 0.2);
+            --tag-text: #c4b5fd;
 
-            --glow-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+            --glow-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
             color: var(--text-main);
             margin: 0;
-            padding: 2rem;
-            line-height: 1.5;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        /* Glassmorphism Utilities */
+        .glass {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            box-shadow: var(--glass-shadow);
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+        /* Top Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            z-index: 10;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #c4b5fd, #8b5cf6, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
-        p.subtitle {
-            text-align: center;
+        /* Main Dashboard Layout */
+        .dashboard {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            padding-bottom: 110px; /* Space for sticky footer */
+        }
+
+        /* Left Sidebar: Categories Menu */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 1.5rem 1rem;
+            gap: 0.5rem;
+        }
+
+        /* Hide scrollbar for sidebar */
+        .sidebar::-webkit-scrollbar { width: 0px; }
+
+        .category-nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
             color: var(--text-muted);
-            margin-bottom: 2rem;
+            border: 1px solid transparent;
             font-weight: 500;
         }
 
-        .panel {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+        .category-nav-item:hover {
+            background: var(--surface-hover);
+            color: var(--text-main);
         }
 
-        .panel h2 {
-            margin-top: 0;
-            font-size: 1.1rem;
-            font-weight: 600;
+        .category-nav-item.active {
+            background: var(--surface-active);
             color: var(--text-main);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
+            border-color: var(--border);
+            box-shadow: inset 2px 0 0 var(--primary);
+        }
+
+        .category-info {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+        }
+
+        .category-icon {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+        }
+
+        .badge {
+            background: var(--primary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 99px;
+            font-weight: 700;
+            display: none; /* Hidden by default, shown via JS when count > 0 */
+        }
+
+        .badge.visible {
+            display: inline-block;
+        }
+
+        /* Main Content Area (Right Side) */
+        .workspace {
+            flex: 1;
+            padding: 2rem 3rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Base Subject Input Panel */
+        .subject-panel {
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .subject-panel h2 {
+            margin-top: 0;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .subject-panel p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
         }
 
         textarea {
             width: 100%;
             padding: 1rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background-color: var(--bg);
+            border-radius: 12px;
+            background-color: rgba(9, 9, 11, 0.5); /* Darker input */
             color: var(--text-main);
             font-family: inherit;
             font-size: 1rem;
             resize: vertical;
             min-height: 80px;
             box-sizing: border-box;
-            margin-bottom: 1rem;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: var(--glow-shadow);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
         }
 
-        textarea::placeholder {
-            color: var(--text-muted);
+        /* Dynamic Category View Panel */
+        .tags-view-panel {
+            flex: 1;
         }
 
-        .output-box {
-            background-color: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.25rem;
-            font-size: 1.1rem;
-            min-height: 80px;
-            margin-bottom: 1rem;
-            word-wrap: break-word;
-            line-height: 1.6;
+        .tags-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 0.6rem 1.25rem;
-            border-radius: var(--radius);
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.2);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--glow-shadow);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            box-shadow: none;
-        }
-
-        .btn-outline:hover {
-            background-color: var(--surface-hover);
-            border-color: var(--text-muted);
-            box-shadow: none;
-            transform: none;
-        }
-
-        .actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-        }
-
-        /* Accordion Styles */
-        .accordion {
-            background-color: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
-            overflow: hidden;
-            transition: border-color 0.2s;
-        }
-
-        .accordion:hover {
-            border-color: var(--text-muted);
-        }
-
-        .accordion-header {
-            padding: 1rem 1.25rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: transparent;
-            user-select: none;
-        }
-
-        .accordion-header h3 {
+        .tags-header h2 {
             margin: 0;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 1.5rem;
             color: var(--text-main);
-        }
-
-        .accordion-icon {
-            color: var(--text-muted);
-            transition: transform 0.3s ease;
-        }
-
-        .accordion.open .accordion-icon {
-            transform: rotate(180deg);
-        }
-
-        .accordion-content {
-            padding: 0 1.25rem;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease;
-        }
-
-        .accordion.open .accordion-content {
-            padding: 0 1.25rem 1.25rem 1.25rem;
-            /* Using a large max-height for smooth transition, actual height managed by JS for precision */
-            max-height: 1000px;
-            overflow: visible; /* to show tooltips/shadows if needed */
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .tags-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.6rem;
+            gap: 0.75rem;
         }
 
         .tag {
-            padding: 0.4rem 0.85rem;
-            border-radius: 999px;
-            font-size: 0.85rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 99px;
+            font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
             border: 1px solid var(--border);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
-            background-color: var(--surface);
+            background-color: rgba(24, 24, 27, 0.4);
             color: var(--text-muted);
+            backdrop-filter: blur(4px);
         }
 
-        /* Hover & Active animations */
         .tag:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
             color: var(--text-main);
             border-color: var(--text-muted);
             background-color: var(--surface-hover);
         }
 
         .tag:active {
-            transform: scale(0.95);
+            transform: translateY(0);
         }
 
-        /* Active states for different categories */
         .tag.active {
-            background-color: rgba(139, 92, 246, 0.2);
-            color: #c4b5fd;
-            border-color: #c4b5fd;
-            box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+            background-color: var(--tag-glow);
+            color: var(--tag-text);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--tag-glow);
         }
 
-        .tag.active[data-category="format"] {
-            background-color: var(--tag-format);
-            color: var(--tag-format-text);
-            border-color: var(--tag-format-text);
-            box-shadow: 0 0 10px rgba(74, 222, 128, 0.2);
-        }
-
-        .tag.active[data-category="subject"] {
-            background-color: var(--tag-subject);
-            color: var(--tag-subject-text);
-            border-color: var(--tag-subject-text);
-            box-shadow: 0 0 10px rgba(129, 140, 248, 0.2);
-        }
-
-        .tag.active[data-category="style"] {
-            background-color: var(--tag-style);
-            color: var(--tag-style-text);
-            border-color: var(--tag-style-text);
-            box-shadow: 0 0 10px rgba(253, 224, 71, 0.2);
-        }
-
-        .tag.active[data-category="lighting"] {
-            background-color: var(--tag-lighting);
-            color: var(--tag-lighting-text);
-            border-color: var(--tag-lighting-text);
-            box-shadow: 0 0 10px rgba(251, 146, 60, 0.2);
-        }
-
-        .tag.active[data-category="color"] {
-            background-color: var(--tag-color);
-            color: var(--tag-color-text);
-            border-color: var(--tag-color-text);
-            box-shadow: 0 0 10px rgba(244, 114, 182, 0.2);
-        }
-
-        .tag.active[data-category="camera"] {
-            background-color: var(--tag-camera);
-            color: var(--tag-camera-text);
-            border-color: var(--tag-camera-text);
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
-        }
-
-        /* Sticky Footer Styles */
-        .main-content {
-            padding-bottom: 150px; /* Space for sticky footer */
-        }
-
+        /* Sticky Footer */
         .sticky-footer {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: rgba(15, 23, 42, 0.85); /* Matches --bg but transparent */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid var(--border);
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
             z-index: 1000;
-            padding: 1rem 0;
-        }
-
-        .footer-content {
-            padding: 0 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            padding: 1rem 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-sizing: border-box;
         }
 
         .footer-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
         }
 
-        .footer-header h2 {
+        .footer-header h3 {
             margin: 0;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--primary);
+            font-size: 0.9rem;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        .output-box-sticky {
-            margin-bottom: 0;
-            min-height: 60px;
-            max-height: 120px;
-            overflow-y: auto;
-            background-color: var(--surface);
-            font-size: 1rem;
-            padding: 0.75rem 1rem;
+        .actions {
+            display: flex;
+            gap: 0.75rem;
         }
 
-        .btn-sm {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.85rem;
+        .output-box {
+            background-color: rgba(9, 9, 11, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            font-size: 1.05rem;
+            min-height: 24px;
+            max-height: 80px;
+            overflow-y: auto;
+            word-wrap: break-word;
+            line-height: 1.5;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+            box-shadow: var(--glow-shadow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--surface-hover);
+            border-color: var(--text-muted);
+            box-shadow: none;
+        }
+
+        .btn-magic {
+            background: linear-gradient(135deg, #f59e0b, #ef4444); /* Orange/Red gradient */
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .dashboard {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                min-width: 100%;
+                height: 200px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            .workspace {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Icons (SVG injected via JS for neatness, but CSS styles here) */
+        svg {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="container main-content">
-        <h1>Nano Banana 2 Super Master Prompt Builder</h1>
-        <p class="subtitle">The Ultimate Prompt Toolkit</p>
-        <div id="app">
 
-            <div class="panel">
+    <header class="glass">
+        <h1>Nano Banana 2</h1>
+        <div style="color: var(--text-muted); font-size: 0.9rem;">Pro Prompt Dashboard</div>
+    </header>
+
+    <div class="dashboard">
+
+        <!-- Left Sidebar Navigation -->
+        <aside class="sidebar glass" id="sidebar-nav">
+            <!-- Navigation items injected via JS -->
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="workspace">
+
+            <div class="subject-panel glass">
                 <h2>1. Core Concept / Subject</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px; margin-bottom: 15px;">Describe the main subject, action, and setting here.</p>
+                <p>Describe your main subject, action, and setting here.</p>
                 <textarea id="base-prompt" placeholder="A futuristic city with flying cars, a cyberpunk samurai standing in the rain..."></textarea>
             </div>
 
-            <div class="panel">
-                <h2>2. Master Style Library</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px; margin-bottom: 20px;">Click categories to expand and select tags. Nano Banana 2 works best when structured: Format/Medium -> Subject -> Style/Engine -> Lighting/Camera -> Details/Colors.</p>
-
-                <div id="library-container" class="accordion-container">
-                    <!-- Collapsible categories will be injected here via JS -->
+            <div class="tags-view-panel" id="tags-view-panel">
+                <div class="tags-header">
+                    <h2 id="current-category-title">
+                        <!-- Icon and Title injected here -->
+                        Select a category from the left
+                    </h2>
+                </div>
+                <div class="tags-container" id="tags-container">
+                    <!-- Tags for active category injected here -->
                 </div>
             </div>
 
-        </div>
+        </main>
     </div>
 
-    <!-- Sticky Footer for Final Prompt -->
-    <div class="sticky-footer">
-        <div class="container footer-content">
-            <div class="footer-header">
-                <h2>Final Prompt Output</h2>
-                <div class="actions">
-                    <button class="btn btn-outline btn-sm" id="btn-clear">Clear All</button>
-                    <button class="btn btn-sm" id="btn-copy">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                        Copy to Clipboard
-                    </button>
-                </div>
+    <!-- Sticky Footer -->
+    <footer class="sticky-footer glass">
+        <div class="footer-header">
+            <h3>Final Prompt Output</h3>
+            <div class="actions">
+                <button class="btn btn-magic" id="btn-random">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    Surprise Me
+                </button>
+                <button class="btn btn-outline" id="btn-clear">Clear All</button>
+                <button class="btn" id="btn-copy">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    Copy
+                </button>
             </div>
-            <div class="output-box output-box-sticky" id="final-output">Your generated prompt will dynamically appear here...</div>
         </div>
-    </div>
+        <div class="output-box" id="final-output">Your generated prompt will dynamically appear here...</div>
+    </footer>
 
     <script>
-        // Expanded Data Structure for the Super Master Library
+        // Expanded "Pro" Library Data with Icons and New Categories
         const libraryData = [
             {
                 id: "format",
-                title: "Formats & Use Cases",
-                tags: [
-                    "Cinematic still", "Editorial photography", "Concept art",
-                    "Album cover", "Movie poster", "Desktop wallpaper", "Phone background",
-                    "Tarot card design", "Graphic novel panel", "Logo design",
-                    "T-shirt vector", "Sticker design", "App icon", "Book cover",
-                    "Character sheet", "Architectural blueprint", "Magazine spread"
-                ]
+                title: "Formats & Mediums",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>',
+                tags: ["Cinematic still", "Editorial photography", "Concept art", "Album cover", "Movie poster", "Desktop wallpaper", "Tarot card design", "Graphic novel panel", "Logo design", "T-shirt vector", "Sticker design", "Architectural blueprint", "Magazine spread", "Character sheet"]
             },
             {
                 id: "church",
-                title: "Church Media (Special)",
-                tags: [
-                    "Sermon title graphic", "Worship background", "Youth group flyer",
-                    "Church bulletin cover", "Announcement slide", "Glowing cross",
-                    "Empty tomb", "Praying hands", "Stained glass window"
-                ]
+                title: "Church Media",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M8 7h8M12 22a8 8 0 0 0 0-16"></path></svg>',
+                tags: ["Sermon title graphic", "Worship background", "Youth group flyer", "Church bulletin cover", "Announcement slide", "Glowing cross", "Empty tomb", "Praying hands", "Stained glass window"]
             },
             {
                 id: "photography",
-                title: "Photography & Film Stocks",
-                tags: [
-                    "Macro photography", "Street photography", "Astrophotography",
-                    "Polaroid", "Kodachrome", "Fujifilm Superia", "Ilford HP5",
-                    "35mm film", "Medium format", "Lomography", "Infrared photography",
-                    "Long exposure", "Double exposure", "Tilt-shift photography",
-                    "Pinhole camera", "Wet plate collodion"
-                ]
+                title: "Photography & Film",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>',
+                tags: ["Macro photography", "Street photography", "Astrophotography", "Polaroid", "Kodachrome", "Fujifilm Superia", "Ilford HP5", "35mm film", "Medium format", "Lomography", "Infrared photography", "Long exposure", "Double exposure", "Tilt-shift"]
             },
             {
                 id: "digital_art",
-                title: "Digital Art & Illustration",
-                tags: [
-                    "Minimalist vector", "Flat design", "Pixel art", "Voxel art",
-                    "Isometric 3D", "Matte painting", "Speed painting", "Line art",
-                    "Pop art", "Swiss design", "Bauhaus style", "Retrowave",
-                    "Cyberpunk aesthetic", "Steampunk", "Solarpunk", "Glitch art",
-                    "Low poly", "Paper cutout style", "Typography art"
-                ]
+                title: "Digital Art & Design",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>',
+                tags: ["Minimalist vector", "Flat design", "Pixel art", "Voxel art", "Isometric 3D", "Matte painting", "Speed painting", "Line art", "Pop art", "Swiss design", "Bauhaus style", "Retrowave", "Cyberpunk aesthetic", "Steampunk", "Glitch art", "Low poly"]
             },
             {
                 id: "anime",
-                title: "Anime & Manga Styles",
-                tags: [
-                    "Studio Ghibli style", "Makoto Shinkai style", "90s anime aesthetic",
-                    "Cyberpunk anime", "Mecha anime", "Chibi style", "Cel shaded",
-                    "Manga panel", "Moe style", "Ukiyo-e fusion", "Shonen jump style",
-                    "Dark fantasy anime", "Watercolor anime background"
-                ]
-            },
-            {
-                id: "traditional_art",
-                title: "Traditional Art Mediums",
-                tags: [
-                    "Oil painting", "Watercolor", "Gouache", "Acrylic painting",
-                    "Charcoal sketch", "Graphite drawing", "Ink wash", "Pastel drawing",
-                    "Fresco", "Woodcut print", "Linocut", "Bronze sculpture",
-                    "Marble statue", "Origami", "Stained glass", "Mosaic"
-                ]
+                title: "Anime & Manga",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>',
+                tags: ["Studio Ghibli style", "Makoto Shinkai style", "90s anime aesthetic", "Cyberpunk anime", "Mecha anime", "Chibi style", "Cel shaded", "Manga panel", "Moe style", "Ukiyo-e fusion", "Dark fantasy anime", "Watercolor anime background"]
             },
             {
                 id: "art_movements",
-                title: "Art Styles & Movements",
-                tags: [
-                    "Surrealism", "Impressionism", "Cubism", "Art Deco",
-                    "Art Nouveau", "Baroque", "Renaissance", "Gothic",
-                    "Expressionism", "Abstract Expressionism", "Dadaism",
-                    "Minimalism", "Romanticism", "Pre-Raphaelite"
-                ]
+                title: "Art Movements",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>',
+                tags: ["Surrealism", "Impressionism", "Cubism", "Art Deco", "Art Nouveau", "Baroque", "Renaissance", "Gothic", "Expressionism", "Abstract Expressionism", "Dadaism", "Minimalism", "Romanticism", "Pre-Raphaelite"]
             },
             {
                 id: "engine",
-                title: "3D & Render Engines",
-                tags: [
-                    "Unreal Engine 5", "Octane render", "V-Ray", "Redshift",
-                    "Blender Cycles", "Cinema 4D", "ZBrush sculpt", "Ray tracing",
-                    "Global illumination", "Ambient occlusion", "Subsurface scattering",
-                    "Path tracing", "Photogrammetry", "8k resolution", "Hyperrealistic"
-                ]
+                title: "Render Engines",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+                tags: ["Unreal Engine 5", "Octane render", "V-Ray", "Redshift", "Blender Cycles", "Cinema 4D", "ZBrush sculpt", "Ray tracing", "Global illumination", "Ambient occlusion", "Subsurface scattering", "Path tracing", "Photogrammetry", "8k resolution"]
+            },
+            {
+                id: "environment",
+                title: "Environment & Weather",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19c2.485 0 4.5-2.015 4.5-4.5S19.985 10 17.5 10H16a7.5 7.5 0 1 0-14.46 2.53"></path></svg>',
+                tags: ["Rainy cyberpunk city", "Lush jungle ruins", "Scorching desert", "Snow-capped mountains", "Foggy forest", "Underwater coral reef", "Outer space nebula", "Post-apocalyptic wasteland", "Cozy interior", "Neon-lit alleyway", "Thunderstorm", "Overcast sky"]
             },
             {
                 id: "lighting",
                 title: "Lighting Setups",
-                tags: [
-                    "Cinematic lighting", "Volumetric lighting", "God rays",
-                    "Golden hour", "Blue hour", "Neon glow", "Bioluminescence",
-                    "Rembrandt lighting", "Butterfly lighting", "Rim lighting",
-                    "Backlit silhouette", "Soft box lighting", "Harsh shadows",
-                    "Chiaroscuro", "Fairy lights", "Candlelight", "Cyberpunk neon"
-                ]
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>',
+                tags: ["Cinematic lighting", "Volumetric lighting", "God rays", "Golden hour", "Blue hour", "Neon glow", "Bioluminescence", "Rembrandt lighting", "Butterfly lighting", "Rim lighting", "Backlit silhouette", "Soft box lighting", "Harsh shadows", "Chiaroscuro"]
             },
             {
                 id: "camera",
-                title: "Camera, Lenses & Angles",
-                tags: [
-                    "Wide angle lens", "Fisheye lens", "Telephoto lens", "50mm lens",
-                    "Drone shot", "Bird's-eye view", "Worm's-eye view", "Dutch angle",
-                    "Symmetrical composition", "Rule of thirds", "Shallow depth of field",
-                    "Bokeh", "Motion blur", "Pan shot tracking", "First-person view"
-                ]
+                title: "Camera & Angles",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>',
+                tags: ["Wide angle lens", "Fisheye lens", "Telephoto lens", "50mm lens", "Drone shot", "Bird's-eye view", "Worm's-eye view", "Dutch angle", "Symmetrical composition", "Rule of thirds", "Shallow depth of field", "Bokeh", "Motion blur", "Pan shot tracking"]
+            },
+            {
+                id: "materials",
+                title: "Textures & Materials",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>',
+                tags: ["Brushed metal", "Rusty iron", "Smooth marble", "Rough concrete", "Glossy plastic", "Matte ceramic", "Woven fabric", "Leather texture", "Iridescent scales", "Crystal facets", "Frosted glass", "Wet stone", "Wood grain"]
             },
             {
                 id: "color",
-                title: "Colors & Aesthetics",
-                tags: [
-                    "Monochromatic", "Duotone", "Pastel tones", "Vibrant colors",
-                    "Dark and moody", "High contrast", "Desaturated", "Sepia",
-                    "Neon synthwave", "Earthy tones", "Holographic", "Iridescent",
-                    "Ethereal", "Liminal space", "Dreamcore", "Weirdcore", "Grime"
-                ]
+                title: "Colors & Mood",
+                icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>',
+                tags: ["Monochromatic", "Duotone", "Pastel tones", "Vibrant colors", "Dark and moody", "High contrast", "Desaturated", "Sepia", "Neon synthwave", "Earthy tones", "Holographic", "Iridescent", "Ethereal", "Melancholic vibe", "Joyful atmosphere", "Ominous feeling"]
             }
         ];
 
-        // State to keep track of selected tags dynamically based on libraryData
+        // State Tracking
         const selectedTags = {};
-        libraryData.forEach(cat => {
-            selectedTags[cat.id] = new Set();
-        });
+        libraryData.forEach(cat => selectedTags[cat.id] = new Set());
+        let activeCategoryId = libraryData[0].id; // Default to first category
 
         // DOM Elements
-        const libraryContainer = document.getElementById("library-container");
+        const sidebarNav = document.getElementById("sidebar-nav");
         const basePromptInput = document.getElementById("base-prompt");
         const finalOutput = document.getElementById("final-output");
+        const tagsContainer = document.getElementById("tags-container");
+        const currentCategoryTitle = document.getElementById("current-category-title");
+
         const btnCopy = document.getElementById("btn-copy");
         const btnClear = document.getElementById("btn-clear");
+        const btnRandom = document.getElementById("btn-random");
 
-        // Initialize Library UI
-        function initLibrary() {
-            libraryData.forEach((category, index) => {
-                const accordion = document.createElement("div");
-                accordion.className = "accordion";
-                // Open the first two by default
-                if (index < 2) accordion.classList.add("open");
+        // Initialization
+        function initApp() {
+            renderSidebar();
+            renderActiveCategory(activeCategoryId);
+            updatePrompt();
+        }
 
-                const header = document.createElement("div");
-                header.className = "accordion-header";
+        // Render Sidebar Navigation
+        function renderSidebar() {
+            sidebarNav.innerHTML = ""; // Clear existing
 
-                const title = document.createElement("h3");
-                title.textContent = category.title;
+            libraryData.forEach(category => {
+                const navItem = document.createElement("div");
+                navItem.className = `category-nav-item ${category.id === activeCategoryId ? 'active' : ''}`;
+                navItem.dataset.id = category.id;
 
-                const icon = document.createElement("div");
-                icon.className = "accordion-icon";
-                icon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+                // Content wrapper
+                const infoWrapper = document.createElement("div");
+                infoWrapper.className = "category-info";
 
-                header.appendChild(title);
-                header.appendChild(icon);
+                const iconSpan = document.createElement("span");
+                iconSpan.className = "category-icon";
+                iconSpan.innerHTML = category.icon;
 
-                // Toggle Accordion
-                header.addEventListener("click", () => {
-                    accordion.classList.toggle("open");
+                const titleSpan = document.createElement("span");
+                titleSpan.textContent = category.title;
+
+                infoWrapper.appendChild(iconSpan);
+                infoWrapper.appendChild(titleSpan);
+
+                // Badge for selected count
+                const badge = document.createElement("span");
+                badge.className = "badge";
+                badge.id = `badge-${category.id}`;
+
+                navItem.appendChild(infoWrapper);
+                navItem.appendChild(badge);
+
+                navItem.addEventListener("click", () => {
+                    // Update active state in sidebar
+                    document.querySelectorAll('.category-nav-item').forEach(el => el.classList.remove('active'));
+                    navItem.classList.add('active');
+
+                    // Render new category
+                    activeCategoryId = category.id;
+                    renderActiveCategory(activeCategoryId);
                 });
 
-                const content = document.createElement("div");
-                content.className = "accordion-content";
+                sidebarNav.appendChild(navItem);
+            });
 
-                const tagsContainer = document.createElement("div");
-                tagsContainer.className = "tags-container";
+            updateBadges();
+        }
 
-                category.tags.forEach(tagText => {
-                    const tagBtn = document.createElement("button");
-                    tagBtn.className = "tag";
-                    tagBtn.dataset.category = category.id;
-                    tagBtn.dataset.value = tagText;
-                    tagBtn.textContent = tagText;
+        // Render Main Tags View for Active Category
+        function renderActiveCategory(categoryId) {
+            const category = libraryData.find(c => c.id === categoryId);
+            if (!category) return;
 
-                    tagBtn.addEventListener("click", () => toggleTag(category.id, tagText, tagBtn));
-                    tagsContainer.appendChild(tagBtn);
+            // Update Header
+            currentCategoryTitle.innerHTML = `<span style="color: var(--primary); display: flex;">${category.icon}</span> ${category.title}`;
+
+            // Render Tags
+            tagsContainer.innerHTML = "";
+            category.tags.forEach(tagText => {
+                const tagBtn = document.createElement("button");
+                tagBtn.className = `tag ${selectedTags[categoryId].has(tagText) ? 'active' : ''}`;
+                tagBtn.textContent = tagText;
+
+                tagBtn.addEventListener("click", () => {
+                    if (selectedTags[categoryId].has(tagText)) {
+                        selectedTags[categoryId].delete(tagText);
+                        tagBtn.classList.remove("active");
+                    } else {
+                        selectedTags[categoryId].add(tagText);
+                        tagBtn.classList.add("active");
+                    }
+                    updateBadges();
+                    updatePrompt();
                 });
 
-                content.appendChild(tagsContainer);
-                accordion.appendChild(header);
-                accordion.appendChild(content);
-                libraryContainer.appendChild(accordion);
+                tagsContainer.appendChild(tagBtn);
             });
         }
 
-        // Toggle Tag Selection
-        function toggleTag(category, value, element) {
-            if (selectedTags[category].has(value)) {
-                selectedTags[category].delete(value);
-                element.classList.remove("active");
-            } else {
-                selectedTags[category].add(value);
-                element.classList.add("active");
-            }
-            updatePrompt();
+        // Update Sidebar Badges
+        function updateBadges() {
+            libraryData.forEach(cat => {
+                const count = selectedTags[cat.id].size;
+                const badge = document.getElementById(`badge-${cat.id}`);
+                if (badge) {
+                    badge.textContent = count;
+                    if (count > 0) {
+                        badge.classList.add('visible');
+                    } else {
+                        badge.classList.remove('visible');
+                    }
+                }
+            });
         }
 
         // Update Final Prompt Output
         function updatePrompt() {
-            // Helper function to get joined strings for categories safely
             const getStr = (catId) => selectedTags[catId] ? Array.from(selectedTags[catId]).join(", ") : "";
 
             const formatStr = [getStr("format"), getStr("church")].filter(Boolean).join(", ");
             const baseStr = basePromptInput.value.trim();
-
-            const styleMediumStr = [getStr("photography"), getStr("digital_art"), getStr("traditional_art"), getStr("anime"), getStr("art_movements")].filter(Boolean).join(", ");
+            const environmentStr = getStr("environment");
+            const styleMediumStr = [getStr("photography"), getStr("digital_art"), getStr("anime"), getStr("art_movements")].filter(Boolean).join(", ");
             const engineStr = getStr("engine");
+            const materialsStr = getStr("materials");
             const lightingStr = getStr("lighting");
             const cameraStr = getStr("camera");
             const colorStr = getStr("color");
 
-            // Nano Banana 2 optimal Master order:
-            // Format -> Subject -> Medium/Style/Movement -> Engine -> Camera/Lighting -> Colors
-
             const promptParts = [];
 
+            // Logical assembly order for Nano Banana 2
             if (formatStr) promptParts.push(formatStr);
             if (baseStr) promptParts.push(baseStr);
+            if (environmentStr) promptParts.push("set in " + environmentStr);
             if (styleMediumStr) promptParts.push("in the style of " + styleMediumStr);
+            if (materialsStr) promptParts.push("featuring " + materialsStr + " textures");
             if (engineStr) promptParts.push("rendered in " + engineStr);
             if (cameraStr) promptParts.push("shot with " + cameraStr);
-            if (lightingStr) promptParts.push("featuring " + lightingStr);
-            if (colorStr) promptParts.push(colorStr + " aesthetics");
+            if (lightingStr) promptParts.push("illuminated by " + lightingStr);
+            if (colorStr) promptParts.push("with " + colorStr + " aesthetics");
 
             let finalString = promptParts.join(", ");
 
@@ -630,7 +654,7 @@
                 finalOutput.style.color = "var(--text-muted)";
             } else {
                 finalOutput.textContent = finalString;
-                finalOutput.style.color = "var(--primary)";
+                finalOutput.style.color = "#c4b5fd"; // Bright highlight color
             }
         }
 
@@ -639,38 +663,53 @@
 
         btnClear.addEventListener("click", () => {
             basePromptInput.value = "";
-
-            // Clear Sets
             for (let key in selectedTags) {
                 selectedTags[key].clear();
             }
+            renderActiveCategory(activeCategoryId); // Re-render to clear visual tags
+            updateBadges();
+            updatePrompt();
+        });
 
-            // Remove active classes
-            document.querySelectorAll(".tag.active").forEach(el => {
-                el.classList.remove("active");
-            });
+        // Randomizer (Surprise Me) Magic Button
+        btnRandom.addEventListener("click", () => {
+            // Clear existing first
+            for (let key in selectedTags) { selectedTags[key].clear(); }
 
+            // Randomly select 1 tag from 4-6 random categories
+            const shuffledCategories = [...libraryData].sort(() => 0.5 - Math.random());
+            const numCategoriesToPick = Math.floor(Math.random() * 3) + 4; // pick 4 to 6 categories
+
+            for (let i = 0; i < numCategoriesToPick; i++) {
+                const cat = shuffledCategories[i];
+                if (cat.tags.length > 0) {
+                    const randomTag = cat.tags[Math.floor(Math.random() * cat.tags.length)];
+                    selectedTags[cat.id].add(randomTag);
+                }
+            }
+
+            // Re-render current view if tags were added to it
+            renderActiveCategory(activeCategoryId);
+            updateBadges();
             updatePrompt();
         });
 
         btnCopy.addEventListener("click", async () => {
             const textToCopy = finalOutput.textContent;
-            if (textToCopy && textToCopy !== "Your prompt will appear here...") {
+            if (textToCopy && textToCopy !== "Your generated prompt will dynamically appear here...") {
                 try {
                     await navigator.clipboard.writeText(textToCopy);
                     const originalText = btnCopy.innerHTML;
-                    btnCopy.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!';
-                    setTimeout(() => {
-                        btnCopy.innerHTML = originalText;
-                    }, 2000);
+                    btnCopy.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!';
+                    setTimeout(() => { btnCopy.innerHTML = originalText; }, 2000);
                 } catch (err) {
                     alert("Failed to copy text.");
                 }
             }
         });
 
-        // Initialize on load
-        initLibrary();
+        // Run
+        initApp();
     </script>
 </body>
 </html>
