@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nano Banana 2 - Church Media Prompt Builder</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 8px;
+
+            --tag-format: #dcfce7;
+            --tag-format-text: #166534;
+            --tag-subject: #e0e7ff;
+            --tag-subject-text: #3730a3;
+            --tag-style: #fef08a;
+            --tag-style-text: #854d0e;
+            --tag-lighting: #ffedd5;
+            --tag-lighting-text: #9a3412;
+            --tag-color: #fce7f3;
+            --tag-color-text: #9d174d;
+            --tag-camera: #e0f2fe;
+            --tag-camera-text: #075985;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 80px;
+            box-sizing: border-box;
+            margin-bottom: 1rem;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .output-box {
+            background-color: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            font-size: 1.1rem;
+            min-height: 60px;
+            margin-bottom: 1rem;
+            word-wrap: break-word;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg);
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .category-group {
+            margin-bottom: 2rem;
+        }
+
+        .category-group h3 {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            user-select: none;
+            background-color: var(--surface);
+            border-color: var(--border);
+            color: var(--text-main);
+        }
+
+        /* Active states for different categories */
+        .tag.active[data-category="format"] {
+            background-color: var(--tag-format);
+            color: var(--tag-format-text);
+            border-color: var(--tag-format-text);
+        }
+
+        .tag.active[data-category="subject"] {
+            background-color: var(--tag-subject);
+            color: var(--tag-subject-text);
+            border-color: var(--tag-subject-text);
+        }
+
+        .tag.active[data-category="style"] {
+            background-color: var(--tag-style);
+            color: var(--tag-style-text);
+            border-color: var(--tag-style-text);
+        }
+
+        .tag.active[data-category="lighting"] {
+            background-color: var(--tag-lighting);
+            color: var(--tag-lighting-text);
+            border-color: var(--tag-lighting-text);
+        }
+
+        .tag.active[data-category="color"] {
+            background-color: var(--tag-color);
+            color: var(--tag-color-text);
+            border-color: var(--tag-color-text);
+        }
+
+        .tag.active[data-category="camera"] {
+            background-color: var(--tag-camera);
+            color: var(--tag-camera-text);
+            border-color: var(--tag-camera-text);
+        }
+
+        .tag:hover:not(.active) {
+            background-color: #f1f5f9;
+        }
+
+        /* Grid layout for library */
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nano Banana 2 Prompt Builder</h1>
+        <p class="subtitle">Church Media & Graphics Toolkit</p>
+        <div id="app">
+
+            <div class="panel">
+                <h2>1. Base Prompt</h2>
+                <textarea id="base-prompt" placeholder="Enter the core idea (e.g., A glowing cross on a hill, young adults drinking coffee...)"></textarea>
+            </div>
+
+            <div class="panel">
+                <h2>2. Final Prompt</h2>
+                <div class="output-box" id="final-output">Your prompt will appear here...</div>
+                <div class="actions">
+                    <button class="btn btn-outline" id="btn-clear">Clear All</button>
+                    <button class="btn" id="btn-copy">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>3. Style Library</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px; margin-bottom: 20px;">Click tags to toggle them on or off. Nano Banana 2 works best in this order: Format -> Subject/Base -> Art Style -> Lighting -> Color/Mood -> Camera.</p>
+
+                <div class="library-grid" id="library-container">
+                    <!-- Categories will be injected here via JS -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Data Structure for the Immense Library
+        const libraryData = [
+            {
+                id: "format",
+                title: "Formats & Use Cases",
+                tags: [
+                    "Sermon title graphic", "Worship background", "Social media post",
+                    "Instagram story", "Event flyer", "YouTube thumbnail",
+                    "Church bulletin cover", "Announcement slide", "Website header",
+                    "Print poster", "T-shirt design", "Logo concept", "VBS graphic",
+                    "Youth group flyer", "Kids ministry art", "Women's ministry promo"
+                ]
+            },
+            {
+                id: "subject",
+                title: "Subjects & Elements",
+                tags: [
+                    "Glowing cross", "Empty tomb", "Crown of thorns", "Dove",
+                    "Open bible", "Praying hands", "Communion elements", "Bread and wine",
+                    "Lion and lamb", "Stained glass window", "Church building",
+                    "Worship leader", "Hands raised in worship", "Coffee cup",
+                    "Acoustic guitar", "Path through mountains", "Sunrise over ocean",
+                    "Wheat field", "Olive tree", "Abstract geometric shapes"
+                ]
+            },
+            {
+                id: "style",
+                title: "Art Styles & Mediums",
+                tags: [
+                    "Cinematic photography", "3D render", "Minimalist vector illustration",
+                    "Double exposure", "Vintage film aesthetic", "Modern flat design",
+                    "Abstract fluid art", "Watercolor painting", "Oil painting",
+                    "Charcoal sketch", "Neon cyberpunk", "Swiss design",
+                    "Paper cut-out style", "Low poly", "Glitch art", "Grunge texture",
+                    "Pop art", "Anime style", "Architectural sketch"
+                ]
+            },
+            {
+                id: "lighting",
+                title: "Lighting Setups",
+                tags: [
+                    "God rays", "Volumetric lighting", "Golden hour", "Blue hour",
+                    "Cinematic lighting", "Soft diffused light", "Studio lighting",
+                    "Neon glow", "Backlit silhouette", "Lens flare", "Bioluminescence",
+                    "Harsh shadows", "Rembrandt lighting", "Rim lighting",
+                    "Ethereal glow", "Stage lighting", "Laser lights"
+                ]
+            },
+            {
+                id: "color",
+                title: "Color Palettes & Mood",
+                tags: [
+                    "Monochromatic", "Vibrant colors", "Pastel tones", "Dark and moody",
+                    "Warm and inviting", "Cool and calming", "High contrast",
+                    "Desaturated", "Neon synthwave", "Earthy tones", "Sepia",
+                    "Black and white", "Duotone", "Holographic", "Iridescent",
+                    "Joyful", "Somber", "Reflective", "Energetic", "Peaceful"
+                ]
+            },
+            {
+                id: "camera",
+                title: "Camera & Perspective",
+                tags: [
+                    "Wide angle", "Macro photography", "Drone shot", "Bird's eye view",
+                    "Worm's eye view", "Depth of field", "Bokeh", "Motion blur",
+                    "Symmetrical composition", "Rule of thirds", "Fisheye lens",
+                    "Tilt-shift", "Ultra-detailed", "8k resolution", "Unreal Engine 5",
+                    "Octane render", "V-Ray", "Top-down isometric"
+                ]
+            }
+        ];
+
+        // State to keep track of selected tags
+        const selectedTags = {
+            format: new Set(),
+            subject: new Set(),
+            style: new Set(),
+            lighting: new Set(),
+            color: new Set(),
+            camera: new Set()
+        };
+
+        // DOM Elements
+        const libraryContainer = document.getElementById("library-container");
+        const basePromptInput = document.getElementById("base-prompt");
+        const finalOutput = document.getElementById("final-output");
+        const btnCopy = document.getElementById("btn-copy");
+        const btnClear = document.getElementById("btn-clear");
+
+        // Initialize Library UI
+        function initLibrary() {
+            libraryData.forEach(category => {
+                const groupDiv = document.createElement("div");
+                groupDiv.className = "category-group";
+
+                const title = document.createElement("h3");
+                title.textContent = category.title;
+                groupDiv.appendChild(title);
+
+                const tagsContainer = document.createElement("div");
+                tagsContainer.className = "tags-container";
+
+                category.tags.forEach(tagText => {
+                    const tagBtn = document.createElement("button");
+                    tagBtn.className = "tag";
+                    tagBtn.dataset.category = category.id;
+                    tagBtn.dataset.value = tagText;
+                    tagBtn.textContent = tagText;
+
+                    tagBtn.addEventListener("click", () => toggleTag(category.id, tagText, tagBtn));
+                    tagsContainer.appendChild(tagBtn);
+                });
+
+                groupDiv.appendChild(tagsContainer);
+                libraryContainer.appendChild(groupDiv);
+            });
+        }
+
+        // Toggle Tag Selection
+        function toggleTag(category, value, element) {
+            if (selectedTags[category].has(value)) {
+                selectedTags[category].delete(value);
+                element.classList.remove("active");
+            } else {
+                selectedTags[category].add(value);
+                element.classList.add("active");
+            }
+            updatePrompt();
+        }
+
+        // Update Final Prompt Output
+        function updatePrompt() {
+            const formatStr = Array.from(selectedTags.format).join(", ");
+            const baseStr = basePromptInput.value.trim();
+            const subjectStr = Array.from(selectedTags.subject).join(", ");
+            const styleStr = Array.from(selectedTags.style).join(", ");
+            const lightingStr = Array.from(selectedTags.lighting).join(", ");
+            const colorStr = Array.from(selectedTags.color).join(", ");
+            const cameraStr = Array.from(selectedTags.camera).join(", ");
+
+            // Nano Banana 2 optimal order: Format -> Subject/Base -> Art Style -> Lighting -> Color/Mood -> Camera
+
+            const promptParts = [];
+
+            if (formatStr) promptParts.push(formatStr + " of");
+
+            // Combine Base and Subject
+            const coreSubject = [baseStr, subjectStr].filter(Boolean).join(", ");
+            if (coreSubject) {
+                // If format exists, we don't need a capital letter if we append.
+                // But let's just join them nicely.
+                promptParts.push(coreSubject);
+            }
+
+            if (styleStr) promptParts.push("in the style of " + styleStr);
+            if (lightingStr) promptParts.push("with " + lightingStr);
+            if (colorStr) promptParts.push("featuring " + colorStr);
+            if (cameraStr) promptParts.push(cameraStr);
+
+            let finalString = promptParts.join(", ");
+
+            // Clean up grammar slightly if needed
+            finalString = finalString.replace("of, ", "of ");
+
+            if (!finalString) {
+                finalOutput.textContent = "Your prompt will appear here...";
+                finalOutput.style.color = "var(--text-muted)";
+            } else {
+                finalOutput.textContent = finalString;
+                finalOutput.style.color = "var(--text-main)";
+            }
+        }
+
+        // Event Listeners
+        basePromptInput.addEventListener("input", updatePrompt);
+
+        btnClear.addEventListener("click", () => {
+            basePromptInput.value = "";
+
+            // Clear Sets
+            for (let key in selectedTags) {
+                selectedTags[key].clear();
+            }
+
+            // Remove active classes
+            document.querySelectorAll(".tag.active").forEach(el => {
+                el.classList.remove("active");
+            });
+
+            updatePrompt();
+        });
+
+        btnCopy.addEventListener("click", async () => {
+            const textToCopy = finalOutput.textContent;
+            if (textToCopy && textToCopy !== "Your prompt will appear here...") {
+                try {
+                    await navigator.clipboard.writeText(textToCopy);
+                    const originalText = btnCopy.innerHTML;
+                    btnCopy.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!';
+                    setTimeout(() => {
+                        btnCopy.innerHTML = originalText;
+                    }, 2000);
+                } catch (err) {
+                    alert("Failed to copy text.");
+                }
+            }
+        });
+
+        // Initialize on load
+        initLibrary();
+    </script>
+</body>
+</html>
