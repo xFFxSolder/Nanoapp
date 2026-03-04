@@ -758,6 +758,12 @@
             });
         }
 
+        function clearAllTags() {
+            for (let key in selectedTags) {
+                selectedTags[key].clear();
+            }
+        }
+
         // Update Sidebar Badges
         function updateBadges() {
             libraryData.forEach(cat => {
@@ -821,9 +827,7 @@
 
         btnClear.addEventListener("click", () => {
             basePromptInput.value = "";
-            for (let key in selectedTags) {
-                selectedTags[key].clear();
-            }
+            clearAllTags();
             calculateSuggestions();
             renderActiveCategory(activeCategoryId); // Re-render to clear visual tags
             updateBadges();
@@ -833,7 +837,7 @@
         // Randomizer (Surprise Me) Magic Button
         btnRandom.addEventListener("click", () => {
             // Clear existing first
-            for (let key in selectedTags) { selectedTags[key].clear(); }
+            clearAllTags();
 
             // Randomly select 1 tag from 4-6 random categories
             const shuffledCategories = [...libraryData].sort(() => 0.5 - Math.random());
